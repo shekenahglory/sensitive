@@ -1,0 +1,108 @@
+<?=$this->doctype() ?>
+<html>
+    <head>
+        <?= $this->headScript()->appendFile('/js/jquery-1.9.1.min.js') ?>
+    </head>
+    <style>
+        body {
+            margin:0; 
+            padding:0; 
+            text-align:center; 
+            background:#eee; 
+            box-shadow:inset 0 0 10em #aaa; 
+            width:100%; 
+            height:100%;
+            position:absolute;
+            font-family:Arial, Helvetica, sans-serif;
+            }
+            
+        #dataForm {margin:3em 1em 1em; min-width:30em; display:inline-block;}
+        #dataForm label {display:block; width:100%; text-align:left; padding:0 .5em; color:#888}
+        #dataForm input, #dataForm textarea {
+            width:98%; 
+            padding:1%; 
+            font-size:1.3em;
+            border:1px solid #aaa;
+            background:rgba(255,255,255,.6);
+            box-shadow:inset 0 0 .1em #999;
+            border-radius:.1em;
+            margin-bottom:1em;
+            }
+        
+        #dataForm textarea {min-height:10em; height:15em; min-width:30em}
+        #dataForm .actions { overflow:hidden}
+        #dataForm .actions button {float:right}
+        #dataForm select {font-size:1.1em; width:100%; text-align:center}
+        #dataForm button {
+            background:#459; 
+            border:none; 
+            border-radius:.2em; 
+            font-size:1.2em;
+            padding:.3em 1em;
+            color:#eee;
+            margin:1em;
+            box-shadow:0 0 .2em #222, inset 0 0 .7em #028;
+            cursor:pointer;
+            opacity:.9;
+            }
+            
+        #dataForm button:hover {opacity:1}
+    </style>
+    <body>
+        <form id="dataForm" action="javascript:sendData()">
+            <div>
+                <label>NAME</label>
+                <input class="name"/>
+            </div>  
+            <div>
+                <label>DATA</label>
+                <textarea class="data"></textarea>
+            </div> 
+            <div>
+                <label>RECIPIENT</label>
+                <select class="recipient">
+                <? foreach ($this->recipients as $recipient): 
+                    $name = $recipient->name ? $recipient->name." - " : null;
+                ?>
+                    <option value="<?=$recipient->id?>"><?= $name.$recipient->email ?></option>
+                <? endforeach ?>
+                </select>
+            </div>
+            <div>    
+                <button type="submit">SEND</button>
+            </div> 
+        </form>
+    </body>
+    <script>
+        $('#dataForm button[type="submit"]').prop('disabled',true);
+        function sendData ()
+        {
+            var data      = $('#dataForm .data').val();
+            var name      = $('#dataForm .name').val();
+            var recipient = $('#dataForm .recipient').val();
+            var button    = $('#dataForm button[type="submit"]');
+            
+            if (!name) {
+                alert('You must enter your name.');
+                return;
+            } else if (!data) {
+                alert('data cannot be empty.');
+                return;
+            } 
+            
+            button.prop('disabled',true);
+            $.ajax({
+                url      : '/index/save',
+                type     : 'post',
+                dataType : 'json',
+                data     : {data:data,name:name,recipient:recipient},
+                success  : function (data) {
+                    button.prop('disabled',false);
+                }
+            }).error(function(){
+                button.prop('disabled',false);
+            });
+        }
+    </script>
+    
+</html>
